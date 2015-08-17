@@ -97,7 +97,9 @@
 
     var Evasion=0;
     var CurrentMobMaxHP=200;    
-   // todo
+   
+   // todo, skills
+
     var AOEMultiplier=0;    
     var CriticalMultiplier=2;    
     var SneakAddChance=0;    
@@ -108,7 +110,52 @@
     var SpikesDamage=0;    
     var Vampirism=0;    
     var Berserker=0;    
-    
+    var Hint ="";
+
+
+    var Traits=[
+
+    // passive 'skills'
+    // name,  key value, description, level, enabled, etc ]
+        ["Camping",  1, "Restore health after fight", 1 ],
+        
+        ["Prayer",  1, "Additional health restored from potions", 1],
+        
+        ["Evasion",  10, "% Chance to avoid monster attack", 1],
+        
+        ["Greed",  10, "% Chance to find x2 gold", 1],
+
+        ["Critical Strike",  30, "% Chance to make critical attack", 1], 
+
+        ["Strength",  5, "% Additional damage", 1], 
+
+    //
+
+    ];
+
+    var ImproveTrait = function(traitName)   {
+
+        for (var i = Traits.length - 1; i >= 0; i--) 
+        {
+            if ( Traits[i][0] == traitName){
+
+                if (Traits[i][3]<9 && gld>=200)
+                {
+                    Traits[i][3]++; 
+                    gld-=200;
+                } 
+            }
+        }
+
+    }
+
+
+    var HealPower=1;      // 1 = 100%, for mage, warrior -  1.1; for monk, cleric 1.3 ( 1.4 -> 1.5 -> 1.6 after skill lvl up ), 1 for rogue
+    var CanUseHeal=0;     // 0 = no heal after fight, 1 = small heal (warrior,  monk) , 2 = big heal after fight (Cleric)
+
+
+ 
+
     var DrawPlayerInterface=function(){
 
         var i=0;
@@ -130,10 +177,13 @@
         }
 
 
-        var iconWidth=35;
-        var iconWidth=35;
+        
+        
         var iconSpaceX=10;
-        var iconHeight=35;
+        var iconSpaceY=10;
+        var iconHeight=15;
+        var iconWidth=75;
+
 
         ctx.strokeRect(i*40+5,540,300,13);
         ctx.fillStyle = "red";
@@ -143,6 +193,27 @@
         ctx.fillStyle = "red";
         ctx.fillText("Active Skills", 8*40+130, 540+10);
 
+
+
+
+    
+
+
+        for (var i = Traits.length - 1; i >= 0; i--) 
+        {
+            ctx.strokeRect(i*(iconSpaceX + iconWidth)+5,560,iconWidth,iconHeight);
+            ctx.fillStyle = "blue";
+            ctx.fillText(Traits[i][3], 0+ i*(iconSpaceX + iconWidth)+7, 560+11);
+            ctx.fillStyle = "red";
+            ctx.fillText(Traits[i][0], 10+ i*(iconSpaceX + iconWidth)+7, 560+11);
+            ctx.fillText(" ",i*(iconSpaceX + iconWidth)+7, 560+22);
+        }
+
+        ctx.fillStyle = "red";
+        ctx.fillText(Hint, 0 * (iconSpaceX + iconWidth)+7, 590);
+
+
+        /*
        if (Vampirism>0 || debug)
         {
             ctx.strokeRect(i*(iconSpaceX + iconWidth)+5,560,iconWidth,iconHeight);
@@ -187,6 +258,7 @@
             ctx.fillText("Fly", i*(iconSpaceX + iconWidth)+7, 560+12);
             ctx.fillText("+75%",i*(iconSpaceX + iconWidth)+7, 560+22);
         }
+        */
 
 
     }
@@ -226,11 +298,11 @@
         if (level>10){ add="Expert ";}
         
         if (classId==0){ return add;}
-        if (classId==1){ return add+"Rogue";}
-        if (classId==2){ return add+"Warrior";}
-        if (classId==3){ return add+"Mage";}
-        if (classId==4){ return add+"Monk";}
-        if (classId==4){ return add+"Healer";}
+        if (classId==1){ return add+"Rogue"; HealPower=1;     }
+        if (classId==2){ return add+"Warrior"; HealPower=1.1; }
+        if (classId==3){ return add+"Mage"; HealPower=1.1 ;   }
+        if (classId==4){ return add+"Monk"; HealPower=1.3 ;   } 
+        if (classId==4){ return add+"Healer"; HealPower=1.3;  }
         return add+"unknown";
     }    
     
@@ -371,13 +443,16 @@ var dns = function()
              return "Stab";
         if (PlayerClass==3)
              return "Nuke";
+        if (PlayerClass==4)
+             return "Kick";
+         
         return "Attack";
     }
 
     var ButtonSneak = function(){
         if (PlayerClass==1)
              return "Sneak 75%";
-        if (PlayerClass==3)
+        if (PlayerClass==3 || PlayerClass==5 )
              return "Sneak 5%";
         return "Sneak 40%";
     }
@@ -389,6 +464,9 @@ var dns = function()
              return "Steal 5%";
         return "Steal 10%";
     }
+
+
+
     // general battle, must be modified for each class
     
     var battle = [ ButtonAttack , "Use Potion +10HP", ButtonSneak,"Run 50%", ButtonSteal,
@@ -396,19 +474,25 @@ var dns = function()
          
     
     var canvas=document.querySelector(elid), ctx=canvas.getContext("2d");
+    
     canvas.width=wi; canvas.height=he;
+    
     var evs=[], 
         
         
+        // start location 
         e_tp=[
-            ["Village", "Your adventure start here. Choose your class:", "Rogue", "Warrior", "Mage","Monk(test)","Healer(test)",
+            ["Village", "Your adventure start here. Choose your class:", "Rogue", "Warrior", "Mage","Monk" , "Healer",
         function(){ PlayerClass=1; cur_e++ }, 
         function(){ PlayerClass=2; cur_e++ }, 
-        function(){ PlayerClass=3; cur_e++ },nxt ,nxt ,nxt
+        function(){ PlayerClass=3; cur_e++ },
+        function(){ PlayerClass=4; cur_e++ },  
+        function(){ PlayerClass=5; cur_e++ }, 
+         ,nxt
 
     ],
 
-            
+    // locations for all : shop { heal, pots, upgrade weapon/armor }
     ["Shop", "Wizard provides his services", "Buy Potion $20", "Full Heal $100", "Leave","Enchant Weapon $50","Enchant Armor 50$",
         function(){ if(gld>=20 ) { gld-=20; pot++} },
         function(){ if(gld>=100) { gld-=100; hp=MaxHP} }, nxt ,
@@ -416,7 +500,24 @@ var dns = function()
         function(){ if(gld>=50 ) { gld-=50; DefBonus+=2; MaxHP+=5;} }, nxt,
 
     ],
+
+    // locations for Healer : learn heal power
+
+/* 
+    var HealPower=1;      // 1 = 100%, for mage, warrior -  1.1; for monk, cleric 1.3 ( 1.4 -> 1.5 -> 1.6 after skill lvl up ), 1 for rogue
+    var CanUseHeal=0;     // 0 = no heal after fight, 1 = small heal (warrior,  monk) , 2 = big heal after fight (Cleric)
+*/
+    ["Church", "Cleric provides his services", "Buy Potion $20", "Full Heal $50", "Leave","Learn 'Prayer'" , "Improve Healing",
+        function(){ if(gld>=20 )  { gld-=20; pot++} },
+        function(){ if(gld>=100)  { gld-=100; hp=MaxHP} }, nxt ,
+        function(){ if(gld>=50 )  { gld-=50; Vampirism+=1; MaxHP+=1; } },
+        function(){ if(gld>=200 ) { ImproveTrait("Camping"); } },
         
+        nxt, 
+
+    ],
+        
+        // locations for Rogue : shop { attackpower, hide chance,  steal chance }
     ["Ninja", "He can train rogue powers", "Rogue Practice $50", "Dagger Mastery 50$", "Leave","Learn 'How-to-Spoil'","Learn 'Hide'",
         function(){ if(gld>=50)  {gld-=50; AtkBonus+=2 ; DefBonus+=2; Evasion+=2;} },
         function(){ if(gld>=50 && isRogue() && CriticalMultiplier <= 5)  {gld-=50; CriticalMultiplier+=1/10; } },
@@ -424,7 +525,8 @@ var dns = function()
         function(){ if(gld>=300 && StealChance() <90 && isRogue()) {gld-=300; StealAddChance+=5} },
         function(){ if(gld>=300 && SneakChance() <90 && isRogue()) {gld-=300; SneakAddChance+=5;} },
      ],
-     
+    
+         // locations for Warrrior : shop { training,  improve shield }
       ["Blacksmith", "Dude with hammer can make your gear better and train you as warrior.", "Basic Training $50", "5% Shield Rate $100", "Leave"," - ","5% Reflect $300",
         function(){ if(gld>=50)  {
             gld-=50;AtkBonus+=2 ; DefBonus+=2; MaxHP+=2;
@@ -438,6 +540,8 @@ var dns = function()
         function(){ if(gld>=300 && SpikesDamage<50 && isWarrior()) { gld-=300; SpikesDamage+=5; }  },
      ],
 
+
+     // should we remove it? it's from original game
     ["Dr. Future", "He can play with TIME", "Return to past $200", "Move To future $50", "Leave", "Free Lesson","-",
         function(){ if(gld>=200){gld-=200;  
      var prev_e= cur_e;
@@ -466,6 +570,8 @@ var dns = function()
         function(){ alert("He stole all your money and puff.. disappear"); gld=0; cur_e++;} , nxt ,
         function(){  DefBonus+=1; MaxHP-=5; },   ,],
         
+        // monsters: from strong - to weak
+
     ["SawMan", "Huge man with a saw, it's really danger"].concat(battle,130,30,55,200),
     ["Skeleton", "A terrible skeleton on your way"].concat(battle,80,15,20,100),
     ["Goblin", "Green goblin wants to get your money"].concat(battle,65,10,15,70),
@@ -473,6 +579,8 @@ var dns = function()
     ["Werewolf", "Dark werewolf trying to bite you"].concat(battle,50,15,15,50+Math.floor(Math.random()*40)),
     ["Slime", "What the strange jelly monster?"].concat(battle,20+R20(),3,7,30),
     MobToElements( new monster("Zombie", 50, 10, 33, 50, 1) ),
+
+    // final boss
     ["Dragon", "Omg! It is evil Dragon!","Attack","Use Potion +10HP","-","-","-",hit,use,,,,800,130,100,1000 ] ];
 
 
@@ -491,14 +599,18 @@ var dns = function()
 
             
     var game = setInterval(function(){
-        ctx.clearRect(0,0,wi,he);
-        ctx.fillText("NanoRPG in 30 lines of JavaScript by ripatti (modified by Yodzi)",10,15);
+        
+    ctx.clearRect(0,0,wi,he);
+
+    ctx.fillText("NanoRPG in 30 lines of JavaScript by ripatti (modified by alilgz)",10,15);
+
+    // basic stats
     ctx.fillText("LVL "+lvl+
-         "  HP " + hp+"/"+MaxHP+
-         "  EXP " + exp+"/"+lvl*10+
-         "  ATK " +  Atk()+ //Math.floor(AtkBonus*lvl*4+6)+
-         "  DEF "+ Def() + //Math.floor(lvl*2*DefBonus-1)+
-         "  Gold $"+gld+"  Potions "+pot,10,30);
+         "  HP "   + hp    + "/"+MaxHP+
+         "  EXP "  + exp   + "/"+lvl*10+
+         "  ATK "  + Atk() + //Math.floor(AtkBonus*lvl*4+6)+
+         "  DEF "  + Def() + //Math.floor(lvl*2*DefBonus-1)+
+         "  Gold $"+ gld   + "  Potions "+pot,10,30);
         
         ctx.fillText("Class: " + ClassName(PlayerClass,lvl),10,45);
         
@@ -540,16 +652,43 @@ var dns = function()
 
     
     document.addEventListener('click', function(e){
+        
+       
+
         if (hp>0)
+
             for (var i=0;i<5;i++)
+
                 if ( 
-                     i*120+5 <= e.pageX-450 && 
-                    e.pageX - 450 < i*120+115 
-                    && 460 <= e.pageY-150 &&  e.pageY-150 <460+20)
+                     i*120+5 <= e.offsetX &&  e.offsetX  < i*120+115  && 460 <= e.offsetY && e.offsetY<460+20)
                        { evs[cur_e][i+7](); }
                    else {
-                        //console.log("click" + e.pageX +':'+e.pageY + ' vs '+ (i*120+5)+':'+460);
+                   //     console.log("click" + e.offsetX +':'+e.offsetY + ' vs '+ (i*120+5)+':'+460);
 
                    }
     }, false);
+
+
+     document.addEventListener('mousemove', function(e){
+        var iconSpaceX=10;
+        var iconSpaceY=10;
+        var iconHeight=15;
+        var iconWidth=75;
+        
+        Hint="";
+        
+        if (hp>0)
+            {
+            for (var i=Traits.length-1; i>=0; i--)
+                {
+                 console.log("move" + e.offsetX +':'+e.offsetY );
+                if ( i*(iconSpaceX + iconWidth)+5  <= e.offsetX &&  e.offsetX  < i*(iconSpaceX + iconWidth)+5 + iconWidth  && 560 <= e.offsetY && e.offsetY < 560 + iconHeight )
+                        {
+
+                                Hint =Traits[i][1] +""+ Traits[i][2];
+                        }
+                }
+            }
+    }, false);
+
 })("#canvas",800,600,0,3,3000,100,1,0,90);
