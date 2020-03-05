@@ -98,7 +98,9 @@ GameGenerator.prototype={
                 + " "
            +  list2.split(';')[Math.floor(Math.random()*count2)];
         
-        return new Loot(lootName , lootType, 0, 5,100) ;
+           var attackValue = lootType=="weapon" ? 2*level :  0;
+            var defValue = lootType=="head" ||  lootType=="foot" ? 2*level :  (lootType=="body" ||  lootType=="hand"  ? 3*level:0);
+        return new Loot(lootName , lootType,  attackValue , 5,100) ;
         },
 
     /* SPECIFIC EQUIP */    

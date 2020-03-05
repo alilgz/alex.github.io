@@ -21,20 +21,24 @@ function UI(){
  this.charClass = $("#Class");
  this.Level = $("#Level");
  this.Exp = $("#Exp");
+
  // stats 
  this.charSTR = $("#STR");
  this.charDEX = $("#DEX");
  this.charCON = $("#CON");
  this.charINT = $("#INT");
-   
+ // todo: Atk, Def, HP, Max HP
+ 
+
  //progress
  this.taskProgress = $("#taskProgress");
  this.taskName = $("#taskName");
+
  // later
  this.inventory = $("#Inventory");
  this.equip = $("#Equip");
  this.quests = $("#QuestLog");
- 
+ // todo: log 
  
  
 }
@@ -95,25 +99,25 @@ UI.prototype = {
 // equiment
 
 this.equip.html(""
-   + "<span> Head: "+( typeof gamer.Equip['head'] ==='object' ?  (gamer.Equip['head'].Name +":"+gamer.Equip['head'].Def) : gamer.Equip['head']) +"</span>"
- + "<span> Weapon: "+( typeof gamer.Equip['weapon'] ==='object' ?  gamer.Equip['weapon'].Name : gamer.Equip['weapon']) +"</span>"
- + "<span> Gloves: "+( typeof gamer.Equip['hand'] ==='object' ?  gamer.Equip['hand'].Name : gamer.Equip['hand']) +"</span>"
- + "<span> Body: "+ ( typeof gamer.Equip['body'] ==='object' ?  gamer.Equip['body'].Name : gamer.Equip['body']) +"</span>"
- + "<span> Foots: "+ ( typeof gamer.Equip['foot'] ==='object' ?  gamer.Equip['foot'].Name : gamer.Equip['foot'])  +"</span>"
+   + "<span> Head: "+( typeof gamer.Equip['head'] ==='object' ?  (gamer.Equip['head'].GetName()) : gamer.Equip['head']) +"</span>"
+   + "<span> Weapon: "+( typeof gamer.Equip['weapon'] ==='object' ?  gamer.Equip['weapon'].GetName() : gamer.Equip['weapon']) +"</span>"
+   + "<span> Gloves: "+( typeof gamer.Equip['hand'] ==='object' ?  gamer.Equip['hand'].GetName() : gamer.Equip['hand']) +"</span>"
+   + "<span> Body: "+ ( typeof gamer.Equip['body'] ==='object' ?  gamer.Equip['body'].GetName() : gamer.Equip['body']) +"</span>"
+   + "<span> Foots: "+ ( typeof gamer.Equip['foot'] ==='object' ?  gamer.Equip['foot'].GetName() : gamer.Equip['foot'])  +"</span>"
  )  ;
 
    
    // current task
    
-     if (gamer.HasTask){
+     if (gamer.HasTask)
+     {
       this.taskName.text( gamer.currentTask !=undefined ?   gamer.currentTask.Name: "");
-     this.taskProgress.text( 
-           gamer.TaskProgress + ' of '+ gamer.TaskMax);
+        this.taskProgress.text(  gamer.TaskProgress + ' of '+ gamer.TaskMax );
 
      } else {
            this.taskName.text( ( gamer.currentTask !=undefined ?   gamer.currentTask.Name: "" ) + ': Done!');
            this.taskProgress.text('');
-   }
+    }
 
 }
 };
@@ -193,7 +197,9 @@ Game.prototype = {
 
            if (this.currentTask.TaskType=="sell"){
                 //add exp
-              game.AddGold(this.currentTask.Reward);
+                console.log(this.currentTask);
+                console.log(this.currentTask.Reward);
+              game.ApplyReward(this.currentTask.Reward);
             }
 
             if (this.currentTask.TaskType=="buy"){
@@ -428,6 +434,15 @@ this.Cost=cost;
 
 Loot.prototype={
 constructor:Loot, 
+GetName:function(){
+    
+    var stat="Def: "+this.Def;
+
+    if (this.Type=="weapon"){
+         stat = "Atk: "+this.Atk;
+    }
+ return this.Name + "["+stat+"]";
+},
  RandomItem1: function(){
 var count = (wordsData1.match(/;/g) || []).length;
 return new Loot(wordsData1.split(';')[Math.floor(Math.random()*count)]);
