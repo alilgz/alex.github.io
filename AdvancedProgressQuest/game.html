@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>jQuery addClass example</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  
+    <!--script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script-->
+<script  src="jquery31.js"></script>
+<script  src="main.js"></script>
+<script  src="generator.js"></script>
+     <link rel="stylesheet" type="text/css" href="game.css">
+  
+</head>   
+
+<body>
+
+
+
+<div class=popup>
+    <span>
+     <span>Name:</span><input id=char_Name></span>
+     <span>
+       <span>Race:</span> 
+          <select id=char_Race>
+         <option>Human</option>
+         <option>Orc</option>
+         <option>Elf</option>
+      </select>
+    
+     </span>
+     <span>
+       <span>Class:</span> 
+       <select id=char_Class>
+         <option>Rogue</option>
+         <option>Warrior</option>
+         <option>Mage</option>
+      </select>
+      </span>
+     
+     <textarea cols=60 rows=5> descriprion</textarea>
+    <center><button id="start_game">start</button></center>
+    </div>
+    
+    <div class=column>
+    
+    <div id="Character">
+      <span id=Name></span>
+      <span id=Race></span>
+      <span id=Class></span>
+      <span id=Level></span>
+      <span id=Exp></span>
+    </div>
+    <div id="Stats">
+      <span id=STR></span>
+      <span id=DEX></span>
+      <span id=CON></span>
+      <span id=INT></span>
+      <span id=ATK></span>
+      <span id=DEF></span>
+      <span id=HP></span>
+    </div>
+    
+    <div id="Equip">
+      <span>equiped items</span>
+    </div>
+    </div>
+    
+    <div class=column>
+    
+    <div id="Progress">
+      <span id="taskName"></span>
+       <span id="taskProgress"></span>
+    </div>
+    
+    
+    <div id="Inventory">
+      <span>dropped items</span>
+    </div>
+    
+    <div id="QuestLog">
+      <span>quest list</span>
+    </div>
+    
+    </div>
+    
+</body>
+</html>

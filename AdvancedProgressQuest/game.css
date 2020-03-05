@@ -1,0 +1,74 @@
+body {
+    background: #20262E;
+    padding: 20px;
+    font-family: Helvetica;
+  }
+  
+  
+  #Character{
+    height:140px;
+    
+  }
+  
+  #Stats{
+    height:300px;
+  }
+  #Equip{
+    height:300px;
+  }
+  #QuestLog{
+    height:300px;
+  }
+  
+  
+  
+  #Inventory
+  {
+    height:400px;
+  }
+  
+  #Progress
+  {
+    height:100px;
+  }
+  
+  
+  div > span
+  {
+     display: block;
+     text-align: left;
+  }
+  .popup{
+   width:600px;
+  }
+  .column {
+    display:inline-block;
+    vertical-align:top;
+    border-radius: 1px;
+    padding: 0px;
+    margin: 0 auto;
+    width: 400px;
+  }
+  
+  
+  div {
+    border:1px gray solid;
+    background: #fff;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 22px;
+    text-align: center;
+    transition: all 0.2s;
+    margin: 0 auto;
+    width: 300px;
+  }
+  
+  button {
+    background: #0084ff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 14px;
+    font-size: 15px;
+    color: #fff;
+  }
+   
